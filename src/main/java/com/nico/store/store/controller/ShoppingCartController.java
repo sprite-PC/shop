@@ -26,6 +26,7 @@ public class ShoppingCartController {
 	@Autowired
 	private ShoppingCartService shoppingCartService;
 
+
 	@RequestMapping("/cart")
 	public String shoppingCart(Model model, Authentication authentication) {		
 		User user = (User) authentication.getPrincipal();		
@@ -39,11 +40,17 @@ public class ShoppingCartController {
 	public String addItem(@ModelAttribute("article") Article article, @RequestParam("qty") String qty,
 						  @RequestParam("size") String size, RedirectAttributes attributes, Model model, Authentication authentication) {
 		article = articleService.findArticleById(article.getId());
-		if (!article.hasStock(Integer.parseInt(qty))) {
+		User user = (User) authentication.getPrincipal();
+		ShoppingCart shoppingCart = shoppingCartService.getShoppingCart(user);
+		CartItem cartItem = shoppingCart.findCartItemByArticleAndSize(article.getId(), size);
+		if (cartItem != null && Integer.parseInt(qty) + cartItem.getQty() > article.getStock()){
 			attributes.addFlashAttribute("notEnoughStock", true);
 			return "redirect:/article-detail?id="+article.getId();
-		}		
-		User user = (User) authentication.getPrincipal();		
+		}
+//		if (!article.hasStock(Integer.parseInt(qty))) {
+//			attributes.addFlashAttribute("notEnoughStock", true);
+//			return "redirect:/article-detail?id="+article.getId();
+//		}
 		shoppingCartService.addArticleToShoppingCart(article, user, Integer.parseInt(qty), size);
 		attributes.addFlashAttribute("addArticleSuccess", true);
 		return "redirect:/article-detail?id="+article.getId();
@@ -53,9 +60,13 @@ public class ShoppingCartController {
 	public String updateItemQuantity(@RequestParam("id") Long cartItemId,
 									 @RequestParam("qty") Integer qty, Model model) {		
 		CartItem cartItem = shoppingCartService.findCartItemById(cartItemId);
-		if (cartItem.canUpdateQty(qty)) {
+		Article article = cartItem.getArticle();
+		if (qty <= article.getStock()){
 			shoppingCartService.updateCartItem(cartItem, qty);
 		}
+//		if (cartItem.canUpdateQty(qty)) {
+//			shoppingCartService.updateCartItem(cartItem, qty);
+//		}
 		return "redirect:/shopping-cart/cart";
 	}
 	
