@@ -45,7 +45,9 @@ public class AccountController {
 		model.addAttribute("emailExists", model.asMap().get("emailExists"));
 		return "myAccount";
 	}
-	
+	public void test(){
+		System.out.println("test");
+	}
 	@RequestMapping("/my-profile")
 	public String myProfile(Model model, Authentication authentication) {				
 		User user = (User) authentication.getPrincipal();
@@ -155,5 +157,7 @@ public class AccountController {
 		model.addAttribute("order", order);
 		return "orderDetails";
 	}
+
+
 	
 }
