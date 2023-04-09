@@ -1,9 +1,6 @@
 package com.nico.store.store.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Address {
@@ -12,8 +9,12 @@ public class Address {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String streetAddress;
-	private String city;
-	private String country;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="city")
+	private Cities city;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="provinces")
+	private Provinces provinces;
 	private String zipCode;
 	
 	public Long getId() {
@@ -28,18 +29,23 @@ public class Address {
 	public void setStreetAddress(String streetAddress) {
 		this.streetAddress = streetAddress;
 	}
-	public String getCity() {
+
+	public Cities getCity() {
 		return city;
 	}
-	public void setCity(String city) {
+
+	public void setCity(Cities city) {
 		this.city = city;
 	}
-	public String getCountry() {
-		return country;
+
+	public Provinces getProvinces() {
+		return provinces;
 	}
-	public void setCountry(String country) {
-		this.country = country;
+
+	public void setProvinces(Provinces provinces) {
+		this.provinces = provinces;
 	}
+
 	public String getZipCode() {
 		return zipCode;
 	}

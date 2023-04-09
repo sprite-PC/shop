@@ -6,6 +6,9 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.nico.store.store.domain.*;
+import com.nico.store.store.service.CitiesService;
+import com.nico.store.store.service.ProvincesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,9 +21,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.nico.store.store.domain.Address;
-import com.nico.store.store.domain.Order;
-import com.nico.store.store.domain.User;
 import com.nico.store.store.service.OrderService;
 import com.nico.store.store.service.UserService;
 import com.nico.store.store.service.impl.UserSecurityService;
@@ -38,6 +38,12 @@ public class AccountController {
 	
 	@Autowired
 	private OrderService orderService;
+
+	@Autowired
+	private CitiesService citiesService;
+
+	@Autowired
+	private ProvincesService provincesService;
 
 	@RequestMapping("/login")
 	public String log(Model model) {
@@ -68,16 +74,24 @@ public class AccountController {
 	public String myAddress(Model model, Principal principal) {
 		User user = userService.findByUsername(principal.getName());
 		model.addAttribute("user", user);
+
+		List<Cities> citiesList = citiesService.findAll();
+		List<Provinces> provincesList = provincesService.findAll();
+
+		model.addAttribute("cities", citiesList);
+		model.addAttribute("provincesList", provincesList);
+
 		return "myAddress";
 	}
 	
 	@RequestMapping(value="/update-user-address", method=RequestMethod.POST)
-	public String updateUserAddress(@ModelAttribute("address") Address address, 
+	public String updateUserAddress(@ModelAttribute("address") Address address,@ModelAttribute("provinces") Provinces provinces,
 			Model model, Principal principal) throws Exception {
 		User currentUser = userService.findByUsername(principal.getName());
 		if(currentUser == null) {
 			throw new Exception ("User not found");
 		}
+		System.out.println(provinces);
 		currentUser.setAddress(address);
 		userService.save(currentUser);
 		return "redirect:/my-address";
